@@ -1,0 +1,11 @@
+{
+    "name": "nodeSinamaq",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "nodemon app.js"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "mssql": "^6.2.3"
+    }
+}
