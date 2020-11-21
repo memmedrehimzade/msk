@@ -8,7 +8,25 @@ var config = {
     server: 'DESKTOP-5N8C2PF', 
     database: 'msk2' 
 };
+function getErrorMessage(e){
+    if(!e){
+        return ""
+    }
+    if( e.originalError && e.originalError.info && e.originalError.info.message)
+    {
+      return  e.originalError.info.message;
+    } 
+    else 
+    if(e.originalError && e.originalError.message)
+    {
+        return e.originalError.message ;
+    }   
+    else
+    {
+      return e;
+    }
 
+}
 
 app.get('/api/search', function (req, res) {
     //console.log(req.query.keyword)
@@ -21,27 +39,15 @@ app.get('/api/search', function (req, res) {
         } 
         // create Request object
         var request = new sql.Request();
-           var keyword = req.query.keyword;
+        var keyword = req.query.keyword;
         // query to the database and get the records
         var query = "select top(10) * from P where ad = N'"+keyword+"' or soyad = N'"+keyword+"' or ataadi = N'"+keyword+"'";
         console.log(query);
         request.query(query, function (err, recordset) {
             // send records as a response
             if (err) { 
-                
-                if( err.originalError && err.originalError.info && err.originalError.info.message)
-                {
-                    res.send({error : err.originalError.info.message,data:[] ,errorDetail:err});
-                } 
-                else 
-                if(err.originalError && err.originalError.message)
-                {
-                    res.send({error:err.originalError.message,data:[],errorDetail:err})
-                }   
-                else
-                {
-                    res.send({error : err,data:[],errorDetail:err});
-                }
+                var errorMessage =getErrorMessage(err)   
+                res.send({error : errorMessage,data:[],errorDetail:err});
             }
              else {
                  res.send({error:"", data:recordset.recordsets,errorDetail:{}})
