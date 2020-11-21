@@ -13,25 +13,44 @@ var config = {
 app.get('/api/search', function (req, res) {
     //console.log(req.query.keyword)
     // connect to your database
-    sql.connect(config, function (err) {
-        if (err) console.log(err);
+    console.clear();
+    sql.connect(config, function (connectionError) {
+        if (connectionError){
+            res.send({error:"bazaya qoşula bilmədi",data:[],errorDetail:connectionError})
+            return
+        } 
         // create Request object
         var request = new sql.Request();
            var keyword = req.query.keyword;
         // query to the database and get the records
-        request.query("select top(10) * from P where ad like N'%"+keyword+"%'" , function (err, recordset) {
+        var query = "select top(10) * from P where ad = N'"+keyword+"' or soyad = N'"+keyword+"' or ataadi = N'"+keyword+"'";
+        console.log(query);
+        request.query(query, function (err, recordset) {
             // send records as a response
-            if (err) {
-                res.send({error : err.originalError.info.message,data:[]});
-             }
+            if (err) { 
+                
+                if( err.originalError && err.originalError.info && err.originalError.info.message)
+                {
+                    res.send({error : err.originalError.info.message,data:[] ,errorDetail:err});
+                } 
+                else 
+                if(err.originalError && err.originalError.message)
+                {
+                    res.send({error:err.originalError.message,data:[],errorDetail:err})
+                }   
+                else
+                {
+                    res.send({error : err,data:[],errorDetail:err});
+                }
+            }
              else {
-                 res.send({error:"", data:recordset.recordsets})
+                 res.send({error:"", data:recordset.recordsets,errorDetail:{}})
              }
         });
     });
 });
 
-var server = app.listen(5000, function () {
+var server = app.listen(8080, function () {
     console.clear();
     console.log('Server is running..');
 });
